@@ -624,6 +624,11 @@ config LTO_CLANG
           files, and the actual compilation from IR occurs at the LTO link step,
           which may take several minutes.
 
+config LTO_GCC
+	bool "Enable Link Time Optimization for GCC"
+	depends on CC_IS_GCC
+	select LTO
+
 endchoice
 
 config CFI_CLANG
