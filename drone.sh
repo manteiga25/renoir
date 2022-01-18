@@ -9,7 +9,7 @@ git submodule init && git submodule update
 cd "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 make clean -j$(nproc --all) && make mrproper -j$(nproc --all)
 make vendor/renoir-qgki_defconfig -j$(nproc --all)
-make -j$(nproc --all) Image.lz4 dtbs dtbo.img
+make -j$(nproc --all) Image.lz4 dtbs
 
 if [ $? -ne 0 ]
 then
