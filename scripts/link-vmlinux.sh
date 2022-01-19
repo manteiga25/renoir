@@ -39,12 +39,12 @@ info()
 	fi
 }
 
-# If CONFIG_LTO_CLANG is selected, generate a linker script to ensure correct
+# If CONFIG_LTO is selected, generate a linker script to ensure correct
 # ordering of initcalls, and with CONFIG_MODVERSIONS also enabled, collect the
 # previously generated symbol versions into the same script.
 lto_lds()
 {
-	if [ -z "${CONFIG_LTO_CLANG}" ]; then
+	if [ -z "${CONFIG_LTO}" ]; then
 		return
 	fi
 
@@ -77,7 +77,7 @@ modpost_link()
 		${KBUILD_VMLINUX_LIBS}				\
 		--end-group"
 
-	if [ -n "${CONFIG_LTO_CLANG}" ]; then
+	if [ -n "${CONFIG_LTO}" ]; then
 		# This might take a while, so indicate that we're doing
 		# an LTO link
 		info LTO ${1}
@@ -88,11 +88,11 @@ modpost_link()
 	${LDFINAL} ${KBUILD_LDFLAGS} -r -o ${1} $(lto_lds) ${objects}
 }
 
-# If CONFIG_LTO_CLANG is selected, we postpone running recordmcount until
+# If CONFIG_LTO is selected, we postpone running recordmcount until
 # we have compiled LLVM IR to an object file.
 recordmcount()
 {
-	if [ -z "${CONFIG_LTO_CLANG}" ]; then
+	if [ -z "${CONFIG_LTO}" ]; then
 		return
 	fi
 
@@ -122,7 +122,7 @@ vmlinux_link()
 	fi
 
 	if [ "${SRCARCH}" != "um" ]; then
-		if [ -n "${CONFIG_LTO_CLANG}" ]; then
+		if [ -n "${CONFIG_LTO}" ]; then
 			# Use vmlinux.o instead of performing the slow LTO
 			# link again.
 			objects="--whole-archive		\
@@ -343,7 +343,7 @@ modpost_link vmlinux.o
 # modpost vmlinux.o to check for section mismatches
 ${MAKE} -f "${srctree}/scripts/Makefile.modpost" MODPOST_VMLINUX=1
 
-if [ -n "${CONFIG_LTO_CLANG}" ]; then
+if [ -n "${CONFIG_LTO}" ]; then
 	# Call recordmcount if needed
 	recordmcount vmlinux.o
 fi
