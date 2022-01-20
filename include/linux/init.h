@@ -192,7 +192,7 @@ extern bool initcall_debug;
 	    ".long	" #fn " - .			\n"	\
 	    ".previous					\n");
 #else
-#if defined(CONFIG_LTO_CLANG) || defined(CONFIG_LTO_GCC)
+#ifdef CONFIG_LTO_CLANG
   /*
    * With LTO, the compiler doesn't necessarily obey link order for
    * initcalls, and the initcall variable needs to be globally unique
