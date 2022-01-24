@@ -524,6 +524,11 @@ struct sdhci_host {
 
 	unsigned int max_clk;	/* Max possible freq (MHz) */
 	unsigned int timeout_clk;	/* Timeout freq (KHz) */
+
+#if defined(CONFIG_SDC_QTI)
+	u8 timeout_clk_div;     /* Timeout freq (KHz) divider */
+#endif
+
 	unsigned int clk_mul;	/* Clock Muliplier value */
 
 	unsigned int clock;	/* Current clock (MHz) */
@@ -558,7 +563,10 @@ struct sdhci_host {
 	dma_addr_t adma_addr;	/* Mapped ADMA descr. table */
 	dma_addr_t align_addr;	/* Mapped bounce buffer */
 
-	unsigned int desc_sz;	/* ADMA descriptor size */
+	unsigned int desc_sz;	/* ADMA current descriptor size */
+#if defined(CONFIG_SDC_QTI)
+	unsigned int alloc_desc_sz;	/* ADMA descr. max size host supports */
+#endif
 
 	struct workqueue_struct *complete_wq;	/* Request completion wq */
 	struct work_struct	complete_work;	/* Request completion work */
@@ -650,6 +658,11 @@ struct sdhci_ops {
 				   dma_addr_t addr, int len, unsigned int cmd);
 	void	(*request_done)(struct sdhci_host *host,
 				struct mmc_request *mrq);
+#if defined(CONFIG_SDC_QTI)
+	unsigned int    (*get_current_limit)(struct sdhci_host *host);
+	void    (*dump_vendor_regs)(struct sdhci_host *host);
+	int     (*notify_load)(struct sdhci_host *host, enum mmc_load state);
+#endif
 };
 
 #ifdef CONFIG_MMC_SDHCI_IO_ACCESSORS

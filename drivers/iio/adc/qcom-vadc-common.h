@@ -42,6 +42,11 @@
 #define PMIC5_CHG_TEMP_SCALE_FACTOR		377500
 #define PMIC5_SMB_TEMP_CONSTANT			419400
 #define PMIC5_SMB_TEMP_SCALE_FACTOR		356
+#define PMIC5_SMB1398_TEMP_SCALE_FACTOR	340
+#define PMIC5_SMB1398_TEMP_CONSTANT		268235
+
+#define PMIC5_PM2250_S3_DIE_TEMP_SCALE_FACTOR	187263
+#define PMIC5_PM2250_S3_DIE_TEMP_CONSTANT		720100
 
 #define PMI_CHG_SCALE_1				-138890
 #define PMI_CHG_SCALE_2				391750000000LL
@@ -49,6 +54,14 @@
 #define VADC5_MAX_CODE				0x7fff
 #define ADC5_FULL_SCALE_CODE			0x70e4
 #define ADC5_USR_DATA_CHECK			0x8000
+
+#define R_PU_100K			100000
+#define RATIO_MAX_ADC7		0x4000
+
+#define DIE_TEMP_ADC7_SCALE_1				-60000
+#define DIE_TEMP_ADC7_SCALE_2				20000
+#define DIE_TEMP_ADC7_SCALE_FACTOR			1000
+#define DIE_TEMP_ADC7_MAX				160000
 
 /**
  * struct vadc_map_pt - Map the graph representation for ADC channel
@@ -113,10 +126,35 @@ struct vadc_prescale_ratio {
  *	100k pullup. The hardware applies offset/slope to adc code.
  * SCALE_HW_CALIB_PMIC_THERM: Returns result in milli degree's Centigrade.
  *	The hardware applies offset/slope to adc code.
+ * SCALE_HW_CALIB_CUR: Returns result in microamperes for PMIC7 channels that
+ *	uses voltage scaling.
  * SCALE_HW_CALIB_PM5_CHG_TEMP: Returns result in millidegrees for PMIC5
  *	charger temperature.
  * SCALE_HW_CALIB_PM5_SMB_TEMP: Returns result in millidegrees for PMIC5
  *	SMB1390 temperature.
+ * SCALE_HW_CALIB_BATT_THERM_100K: Returns battery thermistor voltage in
+ *	decidegC using 100k pullup. The hardware applies offset/slope to adc
+ *	code.
+ * SCALE_HW_CALIB_BATT_THERM_30K: Returns battery thermistor voltage in
+ *	decidegC using 30k pullup. The hardware applies offset/slope to adc
+ *	code.
+ * SCALE_HW_CALIB_BATT_THERM_400K: Returns battery thermistor voltage in
+ *	decidegC using 400k pullup. The hardware applies offset/slope to adc
+ *	code.
+ * SCALE_HW_CALIB_PM5_SMB1398_TEMP: Returns result in millidegrees for PMIC5
+ *	SMB1398 temperature.
+ * SCALE_HW_CALIB_THERM_100K_PU_PM7: Returns temperature in millidegC using
+ *	lookup table for PMIC7. The hardware applies offset/slope to adc code.
+ * SCALE_HW_CALIB_PMIC_THERM_PM7: Returns result in milli degree's Centigrade.
+ *	The hardware applies offset/slope to adc code. This is for PMIC7.
+ * SCALE_HW_CALIB_PM7_SMB_TEMP: Returns result in millidegrees for PMIC7
+ *	SMB139x temperature.
+ * SCALE_HW_CALIB_PM7_CHG_TEMP: Returns result in millidegrees for PMIC7
+ *	charger temperature.
+ * SCALE_HW_CALIB_CUR_RAW: Returns result in microamperes for PMIC7 channels
+ *	that uses raw ADC code.
+ * SCALE_HW_CALIB_PM2250_S3_DIE_TEMP: Returns result in millidegrees for
+ *	S3 die temperature channel on PM2250.
  */
 enum vadc_scale_fn_type {
 	SCALE_DEFAULT = 0,
@@ -128,12 +166,25 @@ enum vadc_scale_fn_type {
 	SCALE_HW_CALIB_THERM_100K_PULLUP,
 	SCALE_HW_CALIB_XOTHERM,
 	SCALE_HW_CALIB_PMIC_THERM,
+	SCALE_HW_CALIB_CUR,
 	SCALE_HW_CALIB_PM5_CHG_TEMP,
 	SCALE_HW_CALIB_PM5_SMB_TEMP,
+	SCALE_HW_CALIB_BATT_THERM_100K,
+	SCALE_HW_CALIB_BATT_THERM_30K,
+	SCALE_HW_CALIB_BATT_THERM_400K,
+	SCALE_HW_CALIB_PM5_SMB1398_TEMP,
+	SCALE_HW_CALIB_THERM_100K_PU_PM7,
+	SCALE_HW_CALIB_PMIC_THERM_PM7,
+	SCALE_HW_CALIB_PM7_SMB_TEMP,
+	SCALE_HW_CALIB_PM7_CHG_TEMP,
+	SCALE_HW_CALIB_CUR_RAW,
+	SCALE_HW_CALIB_PM2250_S3_DIE_TEMP,
+	SCALE_HW_CALIB_PM5_CUR,
 	SCALE_HW_CALIB_INVALID,
 };
 
 struct adc5_data {
+	const char	*name;
 	const u32	full_scale_code_volt;
 	const u32	full_scale_code_cur;
 	const struct adc5_channels *adc_chans;

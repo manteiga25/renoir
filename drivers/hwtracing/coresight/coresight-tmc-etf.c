@@ -26,7 +26,7 @@ static void __tmc_etb_enable_hw(struct tmc_drvdata *drvdata)
 	writel_relaxed(TMC_MODE_CIRCULAR_BUFFER, drvdata->base + TMC_MODE);
 	writel_relaxed(TMC_FFCR_EN_FMT | TMC_FFCR_EN_TI |
 		       TMC_FFCR_FON_FLIN | TMC_FFCR_FON_TRIG_EVT |
-		       TMC_FFCR_TRIGON_TRIGIN,
+		       TMC_FFCR_TRIGON_TRIGIN | TMC_FFCR_STOP_ON_FLUSH,
 		       drvdata->base + TMC_FFCR);
 
 	writel_relaxed(drvdata->trigger_cntr, drvdata->base + TMC_TRG);
@@ -217,6 +217,14 @@ out:
 	if (!used)
 		kfree(buf);
 
+	if (!ret) {
+		coresight_cti_map_trigin(drvdata->cti_reset,
+				drvdata->cti_reset_trig_num, 0);
+		coresight_cti_map_trigout(drvdata->cti_flush,
+				drvdata->cti_flush_trig_num, 0);
+		dev_info(&csdev->dev, "TMC-ETB/ETF enabled\n");
+	}
+
 	return ret;
 }
 
@@ -327,6 +335,10 @@ static int tmc_disable_etf_sink(struct coresight_device *csdev)
 
 	spin_unlock_irqrestore(&drvdata->spinlock, flags);
 
+	coresight_cti_unmap_trigin(drvdata->cti_reset,
+			drvdata->cti_reset_trig_num, 0);
+	coresight_cti_unmap_trigout(drvdata->cti_flush,
+			drvdata->cti_flush_trig_num, 0);
 	dev_dbg(&csdev->dev, "TMC-ETB/ETF disabled\n");
 	return 0;
 }
@@ -616,9 +628,12 @@ int tmc_read_prepare_etb(struct tmc_drvdata *drvdata)
 			ret = -EINVAL;
 			goto out;
 		}
+
+		spin_unlock_irqrestore(&drvdata->spinlock, flags);
+		coresight_disable_all_source_link();
+		spin_lock_irqsave(&drvdata->spinlock, flags);
 		__tmc_etb_disable_hw(drvdata);
 	}
-
 	drvdata->reading = true;
 out:
 	spin_unlock_irqrestore(&drvdata->spinlock, flags);
@@ -657,6 +672,9 @@ int tmc_read_unprepare_etb(struct tmc_drvdata *drvdata)
 		 */
 		memset(drvdata->buf, 0, drvdata->size);
 		__tmc_etb_enable_hw(drvdata);
+		spin_unlock_irqrestore(&drvdata->spinlock, flags);
+		coresight_enable_all_source_link();
+		spin_lock_irqsave(&drvdata->spinlock, flags);
 	} else {
 		/*
 		 * The ETB/ETF is not tracing and the buffer was just read.
@@ -667,6 +685,7 @@ int tmc_read_unprepare_etb(struct tmc_drvdata *drvdata)
 	}
 
 	drvdata->reading = false;
+
 	spin_unlock_irqrestore(&drvdata->spinlock, flags);
 
 	/*
