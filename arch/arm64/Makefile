@@ -163,7 +163,7 @@ Image: vmlinux
 Image.%: Image
 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
 
-Image-dtb Image.gz-dtb: vmlinux scripts dtbs
+Image.gz-dtb: vmlinux scripts dtbs
 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
 
 dtbo.img: $(boot)/dts/dtboimg.cfg dtbs
