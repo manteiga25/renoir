@@ -1981,7 +1981,7 @@ static int haptics_load_predefined_effect(struct haptics_chip *chip,
 
 	if (play->pattern_src == PATTERN1 || play->pattern_src == PATTERN2) {
 		if (play->effect->pattern->preload) {
-			dev_info(chip->dev, "Ignore preloaded effect: %d\n",
+			dev_dbg(chip->dev, "Ignore preloaded effect: %d\n",
 					play->effect->id);
 			return 0;
 		}
