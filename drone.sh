@@ -6,7 +6,7 @@ export CROSS_COMPILE_ARM32=/usr/bin/arm-none-eabi-
 
 git submodule init && git submodule update
 
-export CLANG_DIR=google-clang/clang-r437112b/bin
+export CLANG_DIR=google-clang/clang-r433403/bin
 export LLVM=1
 export CLANG_TRIPLE=aarch64-linux-gnu
 export CROSS_COMPILE=$CLANG_DIR/aarch64-linux-gnu-
