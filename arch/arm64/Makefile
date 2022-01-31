@@ -59,7 +59,7 @@ else
 KBUILD_CFLAGS	+= -mgeneral-regs-only
 endif
 
-KBUILD_CFLAGS	+= -mcpu=cortex-a55
+# KBUILD_CFLAGS	+= -mcpu=cortex-a55
 
 KBUILD_CFLAGS	+= $(lseinstr) $(brokengasinst)	\
 		   $(compat_vdso) $(cc_has_k_constraint)
