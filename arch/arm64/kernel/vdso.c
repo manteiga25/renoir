@@ -273,6 +273,8 @@ static int __aarch32_alloc_vdso_pages(void)
 	sigpage = get_zeroed_page(GFP_ATOMIC);
 	if (!sigpage)
 		return -ENOMEM;
+		
+	kmemleak_not_leak(vdso_pagelist);
 
 	memcpy((void *)sigpage, __aarch32_sigret_code_start, sigret_sz);
 	aarch32_vdso_pages[C_SIGPAGE] = virt_to_page(sigpage);
