@@ -3215,7 +3215,7 @@ static struct regmap *tfa98xx_get_regmap(struct device *dev)
 #endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,18,0)
-static struct snd_soc_component_driver soc_codec_dev_tfa98xx = {
+static const struct snd_soc_component_driver soc_codec_dev_tfa98xx = {
 #else
 static struct snd_soc_codec_driver soc_codec_dev_tfa98xx = {
 #endif
